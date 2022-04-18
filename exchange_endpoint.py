@@ -245,7 +245,7 @@ def fill_order(order, txes=[]):
 
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                     # Make sure that you end up executing all resulting transactions!
-    pass
+    # pass
   
 def execute_txes(txes):
     if txes is None:
@@ -279,7 +279,7 @@ def execute_txes(txes):
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
-    pass
+    # pass
 
 """ End of Helper methods"""
   
@@ -395,7 +395,7 @@ def order_book():
 
     return jsonify(data=orders)
     # added
-    pass
+    # pass
 
 if __name__ == '__main__':
     app.run(port='5002')
