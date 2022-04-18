@@ -130,8 +130,9 @@ def get_algo_keys():
     
     # TODO: Generate or read (using the mnemonic secret) 
     # the algorand public/private keys
-    algo_sk, algo_pk = algosdk.generate_account();
-
+    # algo_sk, algo_pk = algosdk.generate_account();
+    algo_sk = "ne6y1xzYbRPrnVax/5iEVFPGKfnia67yYMWkENlPbjmDzrcaydFr7anA655m7r1nwGFdXxYQEP05fNn9cdiZHA=="
+    algo_pk = "QPHLOGWJ2FV63KOA5OPGN3V5M7AGCXK7CYIBB7JZPTM724OYTEOFNFU6LQ"
     return algo_sk, algo_pk
 
 
@@ -295,7 +296,7 @@ def address():
         
         if content['platform'] == "Ethereum":
             #Your code here
-
+            eth_sk, eth_pk = get_eth_keys()
             return jsonify( eth_pk )
         if content['platform'] == "Algorand":
             #Your code here
