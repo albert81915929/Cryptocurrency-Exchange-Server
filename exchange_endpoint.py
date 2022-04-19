@@ -167,8 +167,9 @@ def check_valid_order(order_obj):
             return False;
 
     elif order_obj.sell_currency == "Algorand":
-        txes = g.icl.search_transactions(txid=tx_id)
+
         try:
+            txes = g.icl.search_transactions(txid=tx_id)
             for tx in txes:
                 if tx['payment-transaction']['amount'] == order.sell_amount and tx['sender'] == order.sender_pk:
                     return True
