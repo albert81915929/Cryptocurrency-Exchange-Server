@@ -354,7 +354,7 @@ def trade():
                       'sell_amount','signature', 'tx_id']
             order_obj = Order(**{f: order[f] for f in fields})
 
-
+            txes = []
             g.session.add(order_obj)
             g.session.commit()
             if check_valid_order(order_obj):
