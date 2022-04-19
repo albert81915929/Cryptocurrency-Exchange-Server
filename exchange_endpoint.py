@@ -1,3 +1,4 @@
+from web3 import Web3
 from flask import Flask, request, g
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
