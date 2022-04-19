@@ -186,7 +186,7 @@ def fill_order(order, txes=[]):
     # Match orders (same as Exchange Server II)
 
     # exist_orderlist = g.session.query(Order).filter(Order.creator == None)
-    exist_orderlist = g.session.query(Order).filter(Order.filled == None).all();
+    exist_orderlist = g.session.query(Order).filter(Order.creator == None).all();
     for exist_order in exist_orderlist:
         if (exist_order.buy_currency == order.sell_currency and exist_order.sell_currency == order.buy_currency
                 and exist_order.sell_amount / exist_order.buy_amount >= order.buy_amount / order.sell_amount):
@@ -207,7 +207,7 @@ def fill_order(order, txes=[]):
                            'receiver_pk': order.receiver_pk,
                            'order': exist_order, 'tx_amount': order.sell_amount}
                 txes.append(tx_dict)
-                txes.append(exist_order)
+                # txes.append(exist_order)
                 # ----------------------------------------------------------------
                 if (order.buy_amount < exist_order.sell_amount):
                     new_order = {}
@@ -247,6 +247,7 @@ def fill_order(order, txes=[]):
 
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                     # Make sure that you end up executing all resulting transactions!
+    return txes
     # pass
   
 def execute_txes(txes):
@@ -356,9 +357,8 @@ def trade():
 
             g.session.add(order_obj)
             g.session.commit()
-            txes = []
             if check_valid_order(order_obj):
-                fill_order(order_obj,txes)
+                txes = fill_order(order_obj,txes)
                 execute_txes(txes)
         else:
             log_message(content['payload'])
