@@ -178,7 +178,33 @@ def check_valid_order(order_obj):
     return False
 
 
-
+def create_txes(order1, order2, txes):
+    tx_eth = {}
+    tx_algo = {}
+    tx_eth["platform"] = "Ethereum"
+    tx_algo["platform"] = "Algorand"
+    if order.sell_currency == "Algorand":
+        #tx_eth["receiver_pk"] = existing_order.sender_pk
+        tx_eth["receiver_pk"] = order1.receiver_pk
+        tx_eth["order_id"] = order1.id
+        tx_eth["amount"] = order1.sell_amount
+        #tx_algo["receiver_pk"] = order.sender_pk
+        tx_algo["receiver_pk"] = order2.receiver_pk
+        tx_algo["order_id"] = order2.id
+        #tx_algo["amount"] = order.buy_amount
+        tx_algo["amount"] = order2.sell_amount
+    else:
+        #tx_eth["receiver_pk"] = order.sender_pk
+        tx_eth["receiver_pk"] = order2.receiver_pk
+        tx_eth["order_id"] = order2.id
+        #tx_eth["amount"] = order.buy_amount
+        tx_eth["amount"] = order2.sell_amount
+        #tx_algo["receiver_pk"] = existing_order.sender_pk
+        tx_algo["receiver_pk"] = order1.receiver_pk
+        tx_algo["order_id"] = order1.id
+        tx_algo["amount"] = order1.sell_amount
+    txes.append(tx_eth)
+    txes.append(tx_algo)
 
 
 def fill_order(order, txes=[]):
@@ -206,8 +232,8 @@ def fill_order(order, txes=[]):
                 tx_dict = {'order_id': order.id, 'platform': order.sell_currency,
                            'receiver_pk': order.receiver_pk,
                            'order': exist_order, 'tx_amount': order.sell_amount}
-                txes.append(tx_dict)
-                # txes.append(exist_order)
+                create_txes(order, exist_order, txes)
+                # txes.append(tx_dict)
                 # ----------------------------------------------------------------
                 if (order.buy_amount < exist_order.sell_amount):
                     new_order = {}
@@ -224,7 +250,8 @@ def fill_order(order, txes=[]):
                     order_obj_child = Order(**{f: new_order[f] for f in fields})
 
                     g.session.add(order_obj_child)
-                    txes.append(order_obj_child)
+                    # txes.append(order_obj_child)
+                    create_txes(order, exist_order, txes)
                     g.session.commit()
 
                 elif (exist_order.buy_amount < order.sell_amount):
@@ -242,7 +269,8 @@ def fill_order(order, txes=[]):
                     order_obj_child = Order(**{f: new_order[f] for f in fields})
 
                     g.session.add(order_obj_child)
-                    txes.append(order_obj_child)
+                    # txes.append(order_obj_child)
+                    create_txes(order, exist_order, txes)
                     g.session.commit()
 
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
