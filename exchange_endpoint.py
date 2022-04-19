@@ -124,7 +124,7 @@ def verify(content):
     else:
         result = False
     #Should only be true if signature validates
-    return jsonify(result)
+    return result
 
 
 def get_algo_keys():
