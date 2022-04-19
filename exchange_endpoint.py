@@ -185,8 +185,8 @@ def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
 
-    exist_orderlist = g.session.query(Order).filter(Order.creator == None)
-    all();
+    # exist_orderlist = g.session.query(Order).filter(Order.creator == None)
+    exist_orderlist = g.session.query(Order).filter(Order.filled == None).all();
     for exist_order in exist_orderlist:
         if (exist_order.buy_currency == order.sell_currency and exist_order.sell_currency == order.buy_currency
                 and exist_order.sell_amount / exist_order.buy_amount >= order.buy_amount / order.sell_amount):
