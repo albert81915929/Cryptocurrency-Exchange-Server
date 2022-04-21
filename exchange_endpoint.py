@@ -269,7 +269,8 @@ def fill_order(order, txes=[]):
 
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                     # Make sure that you end up executing all resulting transactions!
-               tx_generate(order, exist_order, txes)
+
+                tx_generate(order, exist_order, txes)
     return txes
     # pass
   
