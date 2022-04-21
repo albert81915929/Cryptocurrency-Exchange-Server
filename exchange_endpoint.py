@@ -382,6 +382,7 @@ def trade():
 
         # 2. Add the order to the table
         print("Before verify", file=sys.stderr)
+        print(verify(content), file=sys.stderr)
         if verify(content):
             print("In verify", file=sys.stderr)
             order = {}
