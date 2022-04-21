@@ -144,7 +144,7 @@ def get_eth_keys(filename = "eth_mnemonic.txt"):
     # the ethereum public/private keys
     w3.eth.account.enable_unaudited_hdwallet_features()
     acct, mnemonic_secret = w3.eth.account.create_with_mnemonic()
-    # print(mnemonic_secret)
+    print(mnemonic_secret)
     eth_pk = acct._address
     eth_sk = acct._private_key
 
