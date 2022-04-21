@@ -144,7 +144,7 @@ def get_eth_keys(filename = "eth_mnemonic.txt"):
     # the ethereum public/private keys
     w3.eth.account.enable_unaudited_hdwallet_features()
     acct, mnemonic_secret = w3.eth.account.create_with_mnemonic()
-
+    print(mnemonic_secret)
     eth_pk = acct._address
     eth_sk = acct._private_key
 
@@ -158,7 +158,7 @@ def check_valid_order(order_obj):
     if order_obj.sell_currency == "Ethereum":
         try:
             transaction = w3.eth.get_transaction(tx_id)
-            if transaction['value'] == order.sell_amount and transaction['from'] == order.sender_pk:
+            if transaction['value'] == order_obj.sell_amount and transaction['from'] == order_obj.sender_pk:
                 # receiver == get_eth_keys()[0]
                 return True
             else:
