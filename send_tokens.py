@@ -59,17 +59,17 @@ def send_tokens_algo( acl, sender_sk, txes):
             # TODO: Send the transaction to the testnet
             try:
                 tx_id = acl.send_transaction(signed_tx)
-
+                time.sleep(2.0)
                 txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
-
+                tx_ids.append(tx_id)
                 print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n" )
             except Exception as e:
                 tx_id = None
-            tx_ids.append(tx_id)
+            # tx_ids.append(tx_id)
         except Exception as e:
             print(e)
 
-    time.sleep(1.0)
+
     return tx_ids
 
 # Function from Algorand Inc.
