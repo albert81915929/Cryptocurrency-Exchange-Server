@@ -162,10 +162,9 @@ def check_valid_order(order_obj):
     tx_id = order_obj.tx_id
     if order_obj.sell_currency == "Ethereum":
         try:
-            transaction = w3.eth.get_transaction(tx_id)
+            transaction = g.w3.eth.get_transaction(tx_id)
             if transaction['value'] == order_obj.sell_amount and transaction['from'] == order_obj.sender_pk:
                 # receiver == get_eth_keys()[0]
-                print("valid check")
                 return True
             else:
                 return False
@@ -176,13 +175,20 @@ def check_valid_order(order_obj):
 
         try:
             txes = g.icl.search_transactions(txid=tx_id)
-            for tx in txes:
-                if tx['payment-transaction']['amount'] == order.sell_amount and tx['sender'] == order.sender_pk:
-                    print("valid check")
-                    return True
+
+            try:
+                if not 'transactions' in txes.keys():
+                    return False
+            except Exception as e:
+                return False
+
+            for tx in txes["transactions"]:
+                if 'payment-transaction' in tx.keys():
+                    if tx['payment-transaction']['amount'] == order.sell_amount and tx['sender'] == order.sender_pk:
+                        print("valid check")
+                        return True
         except Exception as e:
             return False
-    print("Invalid check line 185")
     return False
 
 
