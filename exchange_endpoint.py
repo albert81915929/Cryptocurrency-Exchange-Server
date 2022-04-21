@@ -208,7 +208,6 @@ def tx_generate(order, exist_order, txes):
 def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
-    
     # exist_orderlist = g.session.query(Order).filter(Order.creator == None)
     exist_orderlist = g.session.query(Order).filter(Order.creator == None).all();
     for exist_order in exist_orderlist:
@@ -249,6 +248,7 @@ def fill_order(order, txes=[]):
 
                     g.session.add(order_obj_child)
                     g.session.commit()
+
                 elif (exist_order.buy_amount < order.sell_amount):
                     new_order = {}
                     new_order['buy_currency'] = order.buy_currency
@@ -262,14 +262,12 @@ def fill_order(order, txes=[]):
                     fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount',
                               'creator_id']
                     order_obj_child = Order(**{f: new_order[f] for f in fields})
-
                     g.session.add(order_obj_child)
                     g.session.commit()
-
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                     # Make sure that you end up executing all resulting transactions!
-            tx_generate(order, exist_order, txes)
-    # return txes
+                tx_generate(order, exist_order, txes)
+            # return txes
     # pass
 
 def execute_txes(txes):
