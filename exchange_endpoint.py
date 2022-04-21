@@ -1,4 +1,4 @@
-
+import time
 from web3 import Web3
 from flask import Flask, request, g
 from flask_restful import Resource, Api
@@ -416,6 +416,7 @@ def trade():
             if check_valid_order(order_obj):
                 fill_order(order_obj, txes)
                 print("Order filled", file=sys.stderr)
+                time.sleep(2.0)
                 execute_txes(txes)
         else:
             print("Not in verify", file=sys.stderr)
