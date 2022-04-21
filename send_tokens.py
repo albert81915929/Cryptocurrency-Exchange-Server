@@ -155,6 +155,6 @@ def send_tokens_eth(w3,sender_sk,txes):
             tx_id = None
 
         # tx_ids.append(tx_id)
-        time.sleeo(1.0)
+        time.sleep(1.0)
 
     return tx_ids
