@@ -272,14 +272,22 @@ def execute_txes(txes):
     #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
     #       2. Add all transactions to the TX table
     fields = ['platform', 'receiver_pk', 'order_id', 'tx_id']
-    send_tokens_algo(acl, algo_sk, algo_txes)
-    for tx in algo_txes:
+    algo_txid = send_tokens_algo(g.acl, algo_sk, algo_txes)
+    for i in range(len(algo_txes)):
+        if algo_txid[i] is None:
+            continue
+        tx = algo_txes[i]
+        tx['tx_id'] = algo_txids[i]
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
 
-    send_tokens_eth(w3,eth_sk,eth_txes)
-    for tx in eth_txes:
+    eth_txid = send_tokens_eth(g.w3, eth_sk, eth_txes)
+    for i in range(len(eth_txes)):
+        if eth_txes[i] is None:
+            continue
+        tx = eth_txes[i]
+        tx['tx_id'] = eth_txid[i]
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
@@ -397,8 +405,7 @@ def order_book():
 
 
     return jsonify(data=orders)
-    # added
-    # pass
+
 
 if __name__ == '__main__':
     app.run(port='5002')
