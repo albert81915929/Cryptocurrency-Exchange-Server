@@ -132,7 +132,7 @@ def send_tokens_eth(w3,sender_sk,txes):
 
     # TODO: For each of the txes, sign and send them to the testnet
     # Make sure you track the nonce -locally-
-
+    starting_nonce = w3.eth.get_transaction_count(sender_pk, "pending")
     tx_ids = []
     for i,tx in enumerate(txes):
         # Your code here
