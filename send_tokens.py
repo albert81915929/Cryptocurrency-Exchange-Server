@@ -80,8 +80,9 @@ def wait_for_confirmation_algo(client, txid):
     """
     last_round = client.status().get('last-round')
     txinfo = client.pending_transaction_info(txid)
-    time.sleep(5.0)
+
     while not (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0):
+        time.sleep(5.0)
         print("Waiting for confirmation")
         last_round += 1
         client.status_after_block(last_round)
