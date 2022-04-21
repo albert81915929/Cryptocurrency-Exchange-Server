@@ -151,11 +151,11 @@ def send_tokens_eth(w3,sender_sk,txes):
         signed_tx = w3.eth.account.sign_transaction(tx_dict, sender_sk)
         try:
             tx_id = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-            # tx_ids.append(tx_id)
+            tx_ids.append(tx_id)
         except Exception as e:
             tx_id = None
 
-        tx_ids.append(tx_id)
+        # tx_ids.append(tx_id)
         time.sleep(1.0)
 
     return tx_ids
