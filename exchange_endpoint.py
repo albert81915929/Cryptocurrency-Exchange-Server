@@ -236,7 +236,7 @@ def fill_order(order, txes=[]):
             # existing_order.filled must be None
             if (exist_order.filled == None):
 
-                exist_buy_sell_rate = exist_order.buy_amount / exist_order.sell_amount
+                exist_sell_buy_rate =  exist_order.sell_amount / exist_order.buy_amount
                 order_buy_sell_rate = order.buy_amount / order.sell_amount
 
                 order.filled = datetime.now()
@@ -252,12 +252,12 @@ def fill_order(order, txes=[]):
                 #
                 # txes.append(tx_dict)
                 # ----------------------------------------------------------------
-                if (order.buy_amount < exist_order.sell_amount):
+                if (order.sell_amount < exist_order.buy_amount):
                     new_order = {}
                     new_order['buy_currency'] = exist_order.buy_currency
                     new_order['sell_currency'] = exist_order.sell_currency
-                    new_order['buy_amount'] = int(exist_buy_sell_rate * (exist_order.sell_amount - order.buy_amount))
-                    new_order['sell_amount'] = int(exist_order.sell_amount - order.buy_amount)
+                    new_order['buy_amount'] = int(exist_order.buy_amount - order.sell_amount)
+                    new_order['sell_amount'] = int((exist_order.buy_amount - order.sell_amount) * exist_sell_buy_rate)
                     new_order['sender_pk'] = exist_order.sender_pk
                     new_order['receiver_pk'] = exist_order.receiver_pk
                     new_order['creator_id'] = exist_order.id
