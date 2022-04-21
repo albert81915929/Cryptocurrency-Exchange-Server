@@ -381,7 +381,9 @@ def trade():
         # 1. Check the signature
 
         # 2. Add the order to the table
+        print("Before verify", file=sys.stderr)
         if verify(content):
+            print("In verify", file=sys.stderr)
             order = {}
             order['signature'] = content['sig']
             order['buy_amount'] = content['payload']['buy_amount']
@@ -403,6 +405,7 @@ def trade():
                 fill_order(order_obj, txes)
                 execute_txes(txes)
         else:
+            print("Not in verify", file=sys.stderr)
             log_message(content['payload'])
             return jsonify(False)
 
