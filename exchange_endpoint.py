@@ -129,6 +129,7 @@ def verify(content):
     else:
         result = False
     # Should only be true if signature validates
+    print("verify is :", result)
     return result
 
 
@@ -138,6 +139,7 @@ def get_algo_keys():
     # algo_sk, algo_pk = algosdk.generate_account();
     algo_sk = "ne6y1xzYbRPrnVax/5iEVFPGKfnia67yYMWkENlPbjmDzrcaydFr7anA655m7r1nwGFdXxYQEP05fNn9cdiZHA=="
     algo_pk = "QPHLOGWJ2FV63KOA5OPGN3V5M7AGCXK7CYIBB7JZPTM724OYTEOFNFU6LQ"
+    print("algo keys got")
     return algo_sk, algo_pk
 
 
@@ -151,7 +153,7 @@ def get_eth_keys(filename="eth_mnemonic.txt"):
     acct = w3.eth.account.from_mnemonic(mnemonic_secret)
     eth_pk = acct._address
     eth_sk = acct._private_key
-
+    print("eth keys got")
     return eth_sk, eth_pk
 
 
@@ -163,6 +165,7 @@ def check_valid_order(order_obj):
             transaction = w3.eth.get_transaction(tx_id)
             if transaction['value'] == order_obj.sell_amount and transaction['from'] == order_obj.sender_pk:
                 # receiver == get_eth_keys()[0]
+                print("valid check")
                 return True
             else:
                 return False
@@ -175,9 +178,11 @@ def check_valid_order(order_obj):
             txes = g.icl.search_transactions(txid=tx_id)
             for tx in txes:
                 if tx['payment-transaction']['amount'] == order.sell_amount and tx['sender'] == order.sender_pk:
+                    print("valid check")
                     return True
         except Exception as e:
             return False
+    print("Invalid check line 185")
     return False
 
 
@@ -206,66 +211,73 @@ def tx_generate(order, exist_order, txes):
 
     txes.append(tx_eth)
     txes.append(tx_algo)
+    print("txes generated")
 
-
-def fill_order(order, txes):
+def fill_order(order, txes=[]):
     # TODO:
     # Match orders (same as Exchange Server II)
-    # Validate the order has a payment to back it (make sure the counterparty also made a payment)
-    # Make sure that you end up executing all resulting transactions!
-    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount', 'creator_id']
-    for existing_order in g.session.query(Order).filter(Order.creator == None).all():
-        if existing_order.filled is not None:
-            continue
-        if existing_order.buy_currency != order.sell_currency:
-            continue
-        if existing_order.sell_currency != order.buy_currency:
-            continue
-        if existing_order.sell_amount / existing_order.buy_amount < order.buy_amount / order.sell_amount:
-            continue
+    # exist_orderlist = g.session.query(Order).filter(Order.creator == None)
+    print("fill start")
+    exist_orderlist = g.session.query(Order).filter(Order.creator == None).all();
+    for exist_order in exist_orderlist:
+        if (exist_order.buy_currency == order.sell_currency and exist_order.sell_currency == order.buy_currency
+                and exist_order.sell_amount / exist_order.buy_amount >= order.buy_amount / order.sell_amount):
+            # existing_order.filled must be None
+            if (exist_order.filled == None):
 
-        #if not check_order(order):
-            #continue
+                exist_buy_sell_rate = exist_order.buy_amount / exist_order.sell_amount
+                order_buy_sell_rate = order.buy_amount / order.sell_amount
 
-        timestamp = datetime.utcnow()
-        order.filled = timestamp
-        existing_order.filled = timestamp
-        order.counterparty_id, existing_order.counterparty_id = existing_order.id, order.id
-        g.session.commit()
+                order.filled = datetime.now()
+                exist_order.filled = datetime.now()
+                order.counterparty_id = exist_order.id
+                exist_order.counterparty_id = order.id
 
+                g.session.commit()
+                # update txes
+                # tx_dict = {'order_id': order.id, 'platform': order.sell_currency,
+                #            'receiver_pk': order.receiver_pk,
+                #            'order': exist_order, 'tx_amount': order.sell_amount}
+                #
+                # txes.append(tx_dict)
+                # ----------------------------------------------------------------
+                if (order.buy_amount < exist_order.sell_amount):
+                    new_order = {}
+                    new_order['buy_currency'] = exist_order.buy_currency
+                    new_order['sell_currency'] = exist_order.sell_currency
+                    new_order['buy_amount'] = exist_buy_sell_rate * (exist_order.sell_amount - order.buy_amount)
+                    new_order['sell_amount'] = exist_order.sell_amount - order.buy_amount
+                    new_order['sender_pk'] = exist_order.sender_pk
+                    new_order['receiver_pk'] = exist_order.receiver_pk
+                    new_order['creator_id'] = exist_order.id
 
-        if order.sell_amount > existing_order.buy_amount:
-            order_child = {}
-            order_child['sender_pk'] = order.sender_pk
-            order_child['receiver_pk'] = order.receiver_pk
-            order_child['buy_currency'] = order.buy_currency
-            order_child['sell_currency'] = order.sell_currency
-            order_child['buy_amount'] = int((order.sell_amount - existing_order.buy_amount) * order.buy_amount / order.sell_amount)
-            order_child['sell_amount'] = order.sell_amount - existing_order.buy_amount
-            order_child['creator_id'] = order.id
-            child_order = Order(**{f: order_child[f] for f in fields})
-            g.session.add(child_order)
-            g.session.commit()
-            #create_txes(order, existing_order, txes)
-            #fill_order(child_order, txes)
+                    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount',
+                              'creator_id']
+                    order_obj_child = Order(**{f: new_order[f] for f in fields})
 
-        elif order.sell_amount < existing_order.buy_amount:
-            order_child = {}
-            order_child['sender_pk'] = existing_order.sender_pk
-            order_child['receiver_pk'] = existing_order.receiver_pk
-            order_child['buy_currency'] = existing_order.buy_currency
-            order_child['sell_currency'] = existing_order.sell_currency
-            order_child['buy_amount'] = existing_order.buy_amount - order.sell_amount
-            order_child['sell_amount'] = int((existing_order.buy_amount - order.sell_amount) * existing_order.sell_amount / existing_order.buy_amount)
-            order_child['creator_id'] = existing_order.id
-            child_order = Order(**{f: order_child[f] for f in fields})
-            g.session.add(child_order)
-            g.session.commit()
-            #create_txes(order, existing_order, txes)
-            #fill_order(child_order, txes)
+                    g.session.add(order_obj_child)
+                    g.session.commit()
 
-        tx_generate(order, existing_order, txes)
-        break
+                elif (exist_order.buy_amount < order.sell_amount):
+                    new_order = {}
+                    new_order['buy_currency'] = order.buy_currency
+                    new_order['sell_currency'] = order.sell_currency
+                    new_order['buy_amount'] = order_buy_sell_rate * (order.sell_amount - exist_order.buy_amount)
+                    new_order['sell_amount'] = order.sell_amount - exist_order.buy_amount
+                    new_order['sender_pk'] = order.sender_pk
+                    new_order['receiver_pk'] = order.receiver_pk
+                    new_order['creator_id'] = order.id
+
+                    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount',
+                              'creator_id']
+                    order_obj_child = Order(**{f: new_order[f] for f in fields})
+                    g.session.add(order_obj_child)
+                    g.session.commit()
+                    # Validate the order has a payment to back it (make sure the counterparty also made a payment)
+                    # Make sure that you end up executing all resulting transactions!
+
+                tx_generate(order, exist_order, txes)
+                break
 
 def execute_txes(txes):
 
