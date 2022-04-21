@@ -207,11 +207,11 @@ def tx_generate(order, exist_order, txes):
     else:
         algo_order = order
         eth_order = exist_order
-    tx_eth["amount"] = eth_order.sell_amount
+    tx_eth["amount"] = eth_order.buy_amount
     tx_eth["receiver_pk"] = eth_order.receiver_pk
     tx_eth["order_id"] = eth_order.id
 
-    tx_algo["amount"] = algo_order.sell_amount
+    tx_algo["amount"] = algo_order.buy_amount
     tx_algo["receiver_pk"] = algo_order.receiver_pk
     tx_algo["order_id"] = algo_order.id
 
