@@ -313,7 +313,7 @@ def execute_txes(txes):
         if algo_txid[i] is None:
             continue
         tx = algo_txes[i]
-        tx['tx_id'] = algo_txids[i]
+        tx['tx_id'] = algo_txid[i]
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
