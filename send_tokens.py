@@ -38,10 +38,14 @@ def send_tokens_algo( acl, sender_sk, txes):
     #       - Sign the transaction
     
     # TODO: Return a list of transaction id's
+    try:
+        params.first
+    except Exception as e:
+        params.first = 0
 
     sender_pk = account.address_from_private_key(sender_sk)
-
     tx_ids = []
+
     for i,tx in enumerate(txes):
         unsigned_tx = transaction.PaymentTxn(sender_pk,params, tx['receiver_pk'], tx['amount'])
         params.first += 1
@@ -146,6 +150,5 @@ def send_tokens_eth(w3,sender_sk,txes):
         except Exception as e:
             tx_id = None
         tx_ids.append(tx_id)
-        # tx['tx_id'] = tx_id
 
     return tx_ids

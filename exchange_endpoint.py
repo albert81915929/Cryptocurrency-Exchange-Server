@@ -143,8 +143,8 @@ def get_eth_keys(filename = "eth_mnemonic.txt"):
     # TODO: Generate or read (using the mnemonic secret) 
     # the ethereum public/private keys
     w3.eth.account.enable_unaudited_hdwallet_features()
-    acct, mnemonic_secret = w3.eth.account.create_with_mnemonic()
-    print(mnemonic_secret)
+    mnemonic_secret = "bulk leopard arctic gloom vehicle type recipe fancy volume flip useful puzzle"
+    acct = w3.eth.account.from_mnemonic(mnemonic_secret)
     eth_pk = acct._address
     eth_sk = acct._private_key
 
@@ -179,6 +179,32 @@ def check_valid_order(order_obj):
 
 
 
+def tx_generate(order, exist_order, txes):
+    tx_eth = {}
+    tx_algo = {}
+    tx_eth["platform"] = "Ethereum"
+    tx_algo["platform"] = "Algorand"
+    algo_order = order
+    eth_order = exist_order
+    if order.sell_currency == "Algorand":
+        algo_order = exist_order
+        eth_order = order
+    tx_eth["amount"] = eth_order.sell_amount
+    tx_eth["receiver_pk"] = eth_order.receiver_pk
+    tx_eth["order_id"] = eth_order.order_id
+
+    tx_algo["amount"] = algo_order.sell_amount
+    tx_eth["receiver_pk"] = algo_order.receiver_pk
+    tx_eth["order_id"] = algo_order.order_id
+
+    if eth_order.child:
+        tx_eth["amount"] -= eth_order.child[0].buy_amount
+    if algo_order.child:
+        tx_algo["amount"] -= algo_order.child[0].buy_amount
+
+    txes.append(tx_eth)
+    txes.append(tx_algo)
+
 def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
@@ -201,11 +227,11 @@ def fill_order(order, txes=[]):
 
                 g.session.commit()
                 # update txes
-                tx_dict = {'order_id': order.id, 'platform': order.sell_currency,
-                           'receiver_pk': order.receiver_pk,
-                           'order': exist_order, 'tx_amount': order.sell_amount}
-
-                txes.append(tx_dict)
+                # tx_dict = {'order_id': order.id, 'platform': order.sell_currency,
+                #            'receiver_pk': order.receiver_pk,
+                #            'order': exist_order, 'tx_amount': order.sell_amount}
+                #
+                # txes.append(tx_dict)
                 # ----------------------------------------------------------------
                 if (order.buy_amount < exist_order.sell_amount):
                     new_order = {}
@@ -222,8 +248,6 @@ def fill_order(order, txes=[]):
                     order_obj_child = Order(**{f: new_order[f] for f in fields})
 
                     g.session.add(order_obj_child)
-                    txes.append(new_order)
-
                     g.session.commit()
 
                 elif (exist_order.buy_amount < order.sell_amount):
@@ -241,12 +265,11 @@ def fill_order(order, txes=[]):
                     order_obj_child = Order(**{f: new_order[f] for f in fields})
 
                     g.session.add(order_obj_child)
-                    txes.append(new_order)
-
                     g.session.commit()
 
                     # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                     # Make sure that you end up executing all resulting transactions!
+               tx_generate(order, exist_order, txes)
     return txes
     # pass
   
@@ -367,7 +390,7 @@ def trade():
             g.session.add(order_obj)
             g.session.commit()
             if check_valid_order(order_obj):
-                txes = fill_order(order_obj,txes)
+                fill_order(order_obj,txes)
                 execute_txes(txes)
         else:
             log_message(content['payload'])
