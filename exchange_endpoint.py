@@ -208,7 +208,7 @@ def tx_generate(order, exist_order, txes):
 def fill_order(order, txes=[]):
     # TODO: 
     # Match orders (same as Exchange Server II)
-
+    
     # exist_orderlist = g.session.query(Order).filter(Order.creator == None)
     exist_orderlist = g.session.query(Order).filter(Order.creator == None).all();
     for exist_order in exist_orderlist:
@@ -271,7 +271,7 @@ def fill_order(order, txes=[]):
             tx_generate(order, exist_order, txes)
     # return txes
     # pass
-  
+
 def execute_txes(txes):
     if txes is None:
         return True
