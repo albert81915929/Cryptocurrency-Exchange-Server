@@ -381,10 +381,7 @@ def trade():
         # 1. Check the signature
 
         # 2. Add the order to the table
-        print("Before verify", file=sys.stderr)
-        print(verify(content), file=sys.stderr)
         if verify(content):
-            print("In verify", file=sys.stderr)
             order = {}
             order['signature'] = content['sig']
             order['buy_amount'] = content['payload']['buy_amount']
@@ -399,11 +396,15 @@ def trade():
                       'sell_amount', 'signature', 'tx_id']
             order_obj = Order(**{f: order[f] for f in fields})
 
+            print("before txes", file=sys.stderr)
             txes = []
             g.session.add(order_obj)
             g.session.commit()
+            print("Check_valid is : ", file=sys.stderr)
+            print(check_valid_order(order_obj), file=sys.stderr)
             if check_valid_order(order_obj):
                 fill_order(order_obj, txes)
+                print("Order filled", file=sys.stderr)
                 execute_txes(txes)
         else:
             print("Not in verify", file=sys.stderr)
