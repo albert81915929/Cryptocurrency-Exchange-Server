@@ -24,7 +24,7 @@ def connect_to_algo(connection_type=''):
     return None
 
 def send_tokens_algo( acl, sender_sk, txes):
-    params = acl.suggested_params
+    params = acl.suggested_params()
     # genesis_hash = params.gh
     # first = params.first
     # last = params.last
