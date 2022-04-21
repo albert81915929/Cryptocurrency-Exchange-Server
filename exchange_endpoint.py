@@ -451,7 +451,7 @@ def order_book():
         order_dict['signature'] = order.signature
         order_dict["tx_id"] = order.tx_id
 
-        orders += [order_dict]
+        orders.append(order_dict)
 
     return jsonify(data=orders)
 
