@@ -1,3 +1,4 @@
+
 from web3 import Web3
 from flask import Flask, request, g
 from flask_restful import Resource, Api
@@ -255,8 +256,8 @@ def fill_order(order, txes=[]):
                     new_order = {}
                     new_order['buy_currency'] = exist_order.buy_currency
                     new_order['sell_currency'] = exist_order.sell_currency
-                    new_order['buy_amount'] = exist_buy_sell_rate * (exist_order.sell_amount - order.buy_amount)
-                    new_order['sell_amount'] = exist_order.sell_amount - order.buy_amount
+                    new_order['buy_amount'] = int(exist_buy_sell_rate * (exist_order.sell_amount - order.buy_amount))
+                    new_order['sell_amount'] = int(exist_order.sell_amount - order.buy_amount)
                     new_order['sender_pk'] = exist_order.sender_pk
                     new_order['receiver_pk'] = exist_order.receiver_pk
                     new_order['creator_id'] = exist_order.id
