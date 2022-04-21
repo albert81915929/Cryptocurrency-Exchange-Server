@@ -271,7 +271,7 @@ def fill_order(order, txes=[]):
                     # Make sure that you end up executing all resulting transactions!
 
                 tx_generate(order, exist_order, txes)
-    return txes
+    # return txes
     # pass
   
 def execute_txes(txes):
