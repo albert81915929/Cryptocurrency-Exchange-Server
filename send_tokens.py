@@ -48,7 +48,7 @@ def send_tokens_algo( acl, sender_sk, txes):
     tx_ids = []
 
     for i,tx in enumerate(txes):
-        unsigned_tx = transaction.PaymentTxn(sender_pk,params, tx['receiver_pk'], tx['amount'])
+        unsigned_tx = transaction.PaymentTxn(sender_pk, params, tx['receiver_pk'], tx['amount'])
         params.first += 1
         # TODO: Sign the transaction
         signed_tx = unsigned_tx.sign(sender_sk)
@@ -68,6 +68,7 @@ def send_tokens_algo( acl, sender_sk, txes):
             tx_ids.append(tx_id)
         except Exception as e:
             print(e)
+
     time.sleep(1.0)
     return tx_ids
 
@@ -138,16 +139,17 @@ def send_tokens_eth(w3,sender_sk,txes):
         # Your code here
         receiver_pk = tx["receiver_pk"]
         tx_amount = tx["amount"]
+        assert isinstance(tx_amount, int)
         tx_dict = {
-            'nonce': starting_nonce+i, #Locally update nonce
+            'nonce': starting_nonce + i, #Locally update nonce
             'gasPrice': w3.eth.gas_price,
             'gas': w3.eth.estimate_gas({'from': sender_pk, 'to': receiver_pk, 'data': b'', 'amount': tx_amount}),
             'to': receiver_pk,
             'value': tx_amount,
             'data': b''}
-        signed_txn = w3.eth.account.sign_transaction(tx_dict, sender_sk)
+        signed_tx = w3.eth.account.sign_transaction(tx_dict, sender_sk)
         try:
-            tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            tx_id = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
         except Exception as e:
             tx_id = None
         tx_ids.append(tx_id)
