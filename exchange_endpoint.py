@@ -197,41 +197,32 @@ def tx_generate(order, exist_order, txes):
     tx_algo = {}
     tx_eth["platform"] = "Ethereum"
     tx_algo["platform"] = "Algorand"
+
+    algo_order = order
+    eth_order = exist_order
     if order.sell_currency == "Algorand":
-        # tx_eth["receiver_pk"] = existing_order.sender_pk
-        tx_eth["receiver_pk"] = order.receiver_pk
-        tx_eth["order_id"] = order.id
-        tx_eth["amount"] = order.buy_amount
-        if order.child:
-            tx_eth["amount"] -= order.child[0].buy_amount
-
-        # tx_algo["receiver_pk"] = order.sender_pk
-        tx_algo["receiver_pk"] = existing_order.receiver_pk
-        tx_algo["order_id"] = existing_order.id
-        # tx_algo["amount"] = order.buy_amount
-        tx_algo["amount"] = existing_order.buy_amount
-
-        if existing_order.child:
-            tx_algo["amount"] -= existing_order.child[0].buy_amount
-
+        algo_order = exist_order
+        eth_order = order
     else:
-        # tx_eth["receiver_pk"] = order.sender_pk
-        tx_eth["receiver_pk"] = existing_order.receiver_pk
-        tx_eth["order_id"] = existing_order.id
-        # tx_eth["amount"] = order.buy_amount
-        tx_eth["amount"] = existing_order.buy_amount
-        if existing_order.child:
-            tx_eth["amount"] -= existing_order.child[0].buy_amount
+        algo_order = order
+        eth_order = exist_order
 
-        # tx_algo["receiver_pk"] = existing_order.sender_pk
-        tx_algo["receiver_pk"] = order.receiver_pk
-        tx_algo["order_id"] = order.id
-        tx_algo["amount"] = order.buy_amount
-        if order.child:
-            tx_algo["amount"] -= order.child[0].buy_amount
+    tx_eth["amount"] = eth_order.sell_amount
+    tx_eth["receiver_pk"] = eth_order.receiver_pk
+    tx_eth["order_id"] = eth_order.id
+
+    tx_algo["amount"] = algo_order.sell_amount
+    tx_algo["receiver_pk"] = algo_order.receiver_pk
+    tx_algo["order_id"] = algo_order.id
+
+    if eth_order.child:
+        tx_eth["amount"] -= eth_order.child[0].buy_amount
+    if algo_order.child:
+        tx_algo["amount"] -= algo_order.child[0].buy_amount
 
     txes.append(tx_eth)
     txes.append(tx_algo)
+    print("txes generated")
 
 def fill_order(order, txes=[]):
     # TODO:
@@ -300,7 +291,6 @@ def fill_order(order, txes=[]):
                 break
 
 def execute_txes(txes):
-
     if txes is None:
         return True
     if len(txes) == 0:
@@ -322,26 +312,25 @@ def execute_txes(txes):
     #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
     #       2. Add all transactions to the TX table
     fields = ['platform', 'receiver_pk', 'order_id', 'tx_id']
-    algo_txid = send_tokens_algo(g.acl, algo_sk, algo_txes)
+    algo_txids = send_tokens_algo(g.acl, algo_sk, algo_txes)
     for i in range(len(algo_txes)):
-        if algo_txid[i] is None:
+        if algo_txids[i] is None:
             continue
         tx = algo_txes[i]
-        tx['tx_id'] = algo_txid[i]
-        new_tx = TX(**{f: tx[f] for f in fields})
+        tx['tx_id'] = algo_txids[i]
+        new_tx = TX(**{f:tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
 
-    eth_txid = send_tokens_eth(g.w3, eth_sk, eth_txes)
+    eth_txids = send_tokens_eth(g.w3, eth_sk, eth_txes)
     for i in range(len(eth_txes)):
         if eth_txes[i] is None:
             continue
         tx = eth_txes[i]
-        tx['tx_id'] = eth_txid[i]
-        new_tx = TX(**{f: tx[f] for f in fields})
+        tx['tx_id'] = eth_txids[i]
+        new_tx = TX(**{f:tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
-    # pass
 
 
 """ End of Helper methods"""
