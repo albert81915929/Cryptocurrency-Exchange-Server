@@ -399,6 +399,7 @@ def trade():
         # 2. Add the order to the table\
         print("Verify Start")
         if verify(content):
+            print("Verified")
             order = {}
             order['signature'] = content['sig']
             order['buy_amount'] = content['payload']['buy_amount']
@@ -417,8 +418,8 @@ def trade():
             txes = []
             g.session.add(order_obj)
             g.session.commit()
-            print("Check_valid is : ")
-            print(check_valid_order(order_obj))
+            # print("Check_valid is : ")
+            # print(check_valid_order(order_obj))
             if check_valid_order(order_obj):
                 fill_order(order_obj, txes)
                 print("Order filled")
