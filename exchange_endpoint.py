@@ -289,6 +289,7 @@ def fill_order(order, txes=[]):
                         # Validate the order has a payment to back it (make sure the counterparty also made a payment)
                         # Make sure that you end up executing all resulting transactions!
                         # fill_order(order_obj_child, txes)
+                print("Order filled")
                 tx_generate(order, exist_order, txes)
                 break
 
@@ -324,6 +325,7 @@ def execute_txes(txes):
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
+        print("Algo execute")
 
     eth_txid = send_tokens_eth(g.w3, eth_sk, eth_txes)
     for i in range(len(eth_txes)):
@@ -334,6 +336,7 @@ def execute_txes(txes):
         new_tx = TX(**{f: tx[f] for f in fields})
         g.session.add(new_tx)
         g.session.commit()
+        print("Eth execute")
     # pass
 
 
@@ -393,7 +396,8 @@ def trade():
 
         # 1. Check the signature
 
-        # 2. Add the order to the table
+        # 2. Add the order to the table\
+        print("Verify Start")
         if verify(content):
             order = {}
             order['signature'] = content['sig']
