@@ -60,13 +60,14 @@ def send_tokens_algo( acl, sender_sk, txes):
 
             # TODO: Send the transaction to the testnet
             try:
-
+                print("send algo try start")
                 tx_id = acl.send_transaction(signed_tx)
                 time.sleep(2.0)
                 txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
                 # tx_ids.append(tx_id)
                 print(f"Sent {tx['amount']} microalgo in transaction: {tx_id}\n" )
             except Exception as e:
+                print("send algo try failed")
                 tx_id = None
             tx_ids.append(tx_id)
         except Exception as e:
@@ -153,9 +154,11 @@ def send_tokens_eth(w3,sender_sk,txes):
             'data': b''}
         signed_tx = w3.eth.account.sign_transaction(tx_dict, sender_sk)
         try:
+            print("send eth try start")
             tx_id = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
             # tx_ids.append(tx_id)
         except Exception as e:
+            print("send eth try failed")
             tx_id = None
 
         tx_ids.append(tx_id)
