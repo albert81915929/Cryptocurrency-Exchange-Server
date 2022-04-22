@@ -413,15 +413,15 @@ def trade():
             txes = []
             g.session.add(order_obj)
             g.session.commit()
-            print("Check_valid is : ", file=sys.stderr)
-            print(check_valid_order(order_obj), file=sys.stderr)
+            print("Check_valid is : ")
+            print(check_valid_order(order_obj))
             if check_valid_order(order_obj):
                 fill_order(order_obj, txes)
-                print("Order filled", file=sys.stderr)
+                print("Order filled")
                 time.sleep(2.0)
                 execute_txes(txes)
         else:
-            print("Not in verify", file=sys.stderr)
+            print("Not in verify")
             log_message(content['payload'])
             # return jsonify(False)
 
