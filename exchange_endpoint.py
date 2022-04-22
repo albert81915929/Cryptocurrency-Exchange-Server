@@ -257,7 +257,7 @@ def fill_order(order, txes=[]):
                     new_order['buy_currency'] = exist_order.buy_currency
                     new_order['sell_currency'] = exist_order.sell_currency
                     new_order['buy_amount'] = exist_order.buy_amount - order.sell_amount
-                    new_order['sell_amount'] = int((exist_order.buy_amount - order.sell_amount) * exist_sell_buy_rate)
+                    new_order['sell_amount'] = int((exist_order.buy_amount - order.sell_amount) * exist_sell_buy_rate) + 1
                     new_order['sender_pk'] = exist_order.sender_pk
                     new_order['receiver_pk'] = exist_order.receiver_pk
                     new_order['creator_id'] = exist_order.id
@@ -280,14 +280,15 @@ def fill_order(order, txes=[]):
                     new_order['receiver_pk'] = order.receiver_pk
                     new_order['creator_id'] = order.id
 
-                    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount',
-                              'creator_id']
-                    order_obj_child = Order(**{f: new_order[f] for f in fields})
-                    g.session.add(order_obj_child)
-                    g.session.commit()
-                    # Validate the order has a payment to back it (make sure the counterparty also made a payment)
-                    # Make sure that you end up executing all resulting transactions!
-                    fill_order(order_obj_child, txes)
+                    if new_order['buy_amount'] != 0:
+                        fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount',
+                                  'creator_id']
+                        order_obj_child = Order(**{f: new_order[f] for f in fields})
+                        g.session.add(order_obj_child)
+                        g.session.commit()
+                        # Validate the order has a payment to back it (make sure the counterparty also made a payment)
+                        # Make sure that you end up executing all resulting transactions!
+                        fill_order(order_obj_child, txes)
                 tx_generate(order, exist_order, txes)
                 break
 
