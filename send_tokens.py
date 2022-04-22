@@ -48,9 +48,11 @@ def send_tokens_algo( acl, sender_sk, txes):
     tx_ids = []
 
     for i,tx in enumerate(txes):
+        params.last = params.first + 800 + i
         unsigned_tx = transaction.PaymentTxn(sender_pk, params, tx['receiver_pk'], tx['amount'])
-        params.first += 1
-        # TODO: Sign the transaction
+
+        # params.first += 1
+        TODO: Sign the transaction
         signed_tx = unsigned_tx.sign(sender_sk)
 
         try:
