@@ -240,7 +240,7 @@ def fill_order(order, txes=[]):
                 order_buy_sell_rate = order.buy_amount / order.sell_amount
 
                 order.filled = datetime.now()
-                exist_order.filled = datetime.now()
+                exist_order.filled = order.filled
                 order.counterparty_id = exist_order.id
                 exist_order.counterparty_id = order.id
 
