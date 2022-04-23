@@ -61,6 +61,7 @@ def send_tokens_algo( acl, sender_sk, txes):
             # TODO: Send the transaction to the testnet
             try:
                 print("send algo try start")
+                time.sleep(2.5)
                 tx_id = acl.send_transaction(signed_tx)
                 print("send algo try start1")
                 time.sleep(5.0)
