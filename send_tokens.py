@@ -85,7 +85,11 @@ def wait_for_confirmation_algo(client, txid):
     confirmed before proceeding.
     """
     print("Waiting for confirmation start")
-    last_round = client.status().get('last-round')
+    time.sleep(5.0)
+    try:
+        last_round = client.status().get('last-round')
+    except Exception as e:
+        print(e)
     print("Waiting for confirmation start1")
     txinfo = client.pending_transaction_info(txid)
 
