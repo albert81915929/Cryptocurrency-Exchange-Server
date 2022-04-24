@@ -91,8 +91,10 @@ def wait_for_confirmation_algo(client, txid):
     except Exception as e:
         print(e)
     print("Waiting for confirmation start1")
-    txinfo = client.pending_transaction_info(txid)
-
+    try:
+        txinfo = client.pending_transaction_info(txid)
+    except Exception as e:
+        print(e)
     while not (txinfo.get('confirmed-round') and txinfo.get('confirmed-round') > 0):
         time.sleep(5.0)
         print("Waiting for confirmation")
