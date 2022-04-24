@@ -61,14 +61,14 @@ def send_tokens_algo( acl, sender_sk, txes):
             # TODO: Send the transaction to the testnet
             try:
                 print("send algo try start")
-                time.sleep(2.5)
+                time.sleep(5.0)
                 try:
                     tx_id = acl.send_transaction(signed_tx)
                 except Exception as e:
                     print(e)
 
                 print("send algo try start1")
-                time.sleep(5.0)
+                time.sleep(2.0)
                 print("send algo try start2")
                 try:
                     txinfo = wait_for_confirmation_algo(acl, txid=tx_id )
@@ -93,7 +93,7 @@ def wait_for_confirmation_algo(client, txid):
     confirmed before proceeding.
     """
     print("Waiting for confirmation start")
-    time.sleep(5.0)
+    time.sleep(3.0)
     try:
         last_round = client.status().get('last-round')
     except Exception as e:
