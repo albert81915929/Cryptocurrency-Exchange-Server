@@ -93,7 +93,11 @@ def wait_for_confirmation_algo(client, txid):
         time.sleep(5.0)
         print("Waiting for confirmation")
         last_round += 1
-        client.status_after_block(last_round)
+        try{
+            client.status_after_block(last_round)
+        }
+        except Exception as e:
+            print(e)
         txinfo = client.pending_transaction_info(txid)
     print("Transaction {} confirmed in round {}.".format(txid, txinfo.get('confirmed-round')))
     return txinfo
